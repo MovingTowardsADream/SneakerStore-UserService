@@ -1,0 +1,13 @@
+app:
+  name: "SneakerStore-UserService"
+  version: "v1.0.0"
+
+grpc:
+  port: ":8080"
+  timeout: 5s
+
+postgres:
+  poolMax: 2
+
+logger:
+  logLevel: "debug"
