@@ -2,6 +2,8 @@ package grpcserver
 
 import (
 	"fmt"
+	"github.com/MovingTowardsADream/SneakerStore-UserService/internal/grpc/auth"
+	"github.com/MovingTowardsADream/SneakerStore-UserService/internal/grpc/user"
 	"google.golang.org/grpc"
 	"log/slog"
 	"net"
@@ -35,6 +37,9 @@ func New(log *slog.Logger, opts ...Option) *Server {
 			s.recoveryInterceptor,
 		),
 	)
+
+	user.UserProfile(gRPCServer)
+	auth.Auth(gRPCServer)
 
 	s.gRPCServer = gRPCServer
 
