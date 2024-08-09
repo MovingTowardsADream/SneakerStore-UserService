@@ -1,3 +1,10 @@
+do $$
+begin
+    if not exists (select 1 from pg_type where typname = 'sex') then
+    create type sex as enum ('Other', 'Male', 'Female');
+end if;
+end $$;
+
 create table if not exists users (
     id bigserial primary key,
     first_name text not null,
@@ -7,8 +14,6 @@ create table if not exists users (
     password_hash text not null,
     created_at timestamp not null default now()
 );
-
-create type if not exists sex AS enum ('Other', 'Male', 'Female');
 
 create table if not exists profile (
     id bigserial primary key,
@@ -28,11 +33,11 @@ create table if not exists address (
     house text not null,
     appartment text,
     user_id integer not null,
-    foreign key (user_id) references users(id),
+    foreign key (user_id) references users(id)
 );
 
-create index if not exists idx_users_signin on users using btree (phone, password);
+create index if not exists idx_users_signin on users using btree (phone, password_hash);
 
-create index if not exists idx_profile_user-id on profile using btree (user_id);
+create index if not exists idx_profile_user_id on profile using btree (user_id);
 
-create index if not exists idx_address_user-id on address using btree (user_id);
+create index if not exists idx_address_user_id on address using btree (user_id);

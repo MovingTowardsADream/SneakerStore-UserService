@@ -9,3 +9,10 @@ drop table if exists address;
 drop table if exists profile;
 
 drop table if exists users;
+
+do $$
+begin
+    if exists (select 1 from pg_type where typname = 'sex') then
+    drop type sex;
+end if;
+end $$;
