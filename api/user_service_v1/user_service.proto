@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package user_service;
+
+option go_package = "user_service.v1;user_service_v1";
+
+service Auth {
+  rpc SignIn (SignInRequest) returns (SignInResponse);
+  rpc SignUp (SignUpRequest) returns (SignUpResponse);
+}
+
+message SignInRequest {
+  string first_name = 1;
+  string last_name = 2;
+  string phone = 3;
+  string email = 4;
+  string password = 5;
+}
+
+message SignInResponse {
+  int64 user_id = 1;
+}
+
+message SignUpRequest {
+  string phone = 1;
+  string password = 2;
+}
+
+message SignUpResponse {
+  string token = 1;
+}
+
+service UserProfile {
+  rpc ProfileInfo (ProfileInfoRequest) returns (ProfileInfoResponse);
+}
+
+message Address {
+  string country = 1;
+  string city = 2;
+  string street = 3;
+  string house = 4;
+  string apartment = 5;
+}
+
+enum Sex {
+  Other = 0;
+  Male = 1;
+  Female = 2;
+}
+
+message ProfileInfoRequest {
+  Sex sex = 1;
+  int32 age = 2;
+  int32 shoes_size = 3;
+  Address address = 4;
+}
+
+message ProfileInfoResponse {
+  string response = 1;
+}
