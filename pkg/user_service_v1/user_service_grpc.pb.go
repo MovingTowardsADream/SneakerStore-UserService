@@ -19,16 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Auth_SignIn_FullMethodName = "/user_service.Auth/SignIn"
 	Auth_SignUp_FullMethodName = "/user_service.Auth/SignUp"
+	Auth_SignIn_FullMethodName = "/user_service.Auth/SignIn"
 )
 
 // AuthClient is the client API for Auth service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthClient interface {
-	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpResponse, error)
+	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
 }
 
 type authClient struct {
@@ -37,16 +37,6 @@ type authClient struct {
 
 func NewAuthClient(cc grpc.ClientConnInterface) AuthClient {
 	return &authClient{cc}
-}
-
-func (c *authClient) SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SignInResponse)
-	err := c.cc.Invoke(ctx, Auth_SignIn_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *authClient) SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpResponse, error) {
@@ -59,12 +49,22 @@ func (c *authClient) SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc
 	return out, nil
 }
 
+func (c *authClient) SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SignInResponse)
+	err := c.cc.Invoke(ctx, Auth_SignIn_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServer is the server API for Auth service.
 // All implementations must embed UnimplementedAuthServer
 // for forward compatibility.
 type AuthServer interface {
-	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
 	SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error)
+	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
 	mustEmbedUnimplementedAuthServer()
 }
 
@@ -75,11 +75,11 @@ type AuthServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthServer struct{}
 
-func (UnimplementedAuthServer) SignIn(context.Context, *SignInRequest) (*SignInResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
-}
 func (UnimplementedAuthServer) SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
+}
+func (UnimplementedAuthServer) SignIn(context.Context, *SignInRequest) (*SignInResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
 }
 func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
 func (UnimplementedAuthServer) testEmbeddedByValue()              {}
@@ -102,24 +102,6 @@ func RegisterAuthServer(s grpc.ServiceRegistrar, srv AuthServer) {
 	s.RegisterService(&Auth_ServiceDesc, srv)
 }
 
-func _Auth_SignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignInRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServer).SignIn(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Auth_SignIn_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServer).SignIn(ctx, req.(*SignInRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Auth_SignUp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SignUpRequest)
 	if err := dec(in); err != nil {
@@ -138,6 +120,24 @@ func _Auth_SignUp_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Auth_SignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignInRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).SignIn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_SignIn_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).SignIn(ctx, req.(*SignInRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Auth_ServiceDesc is the grpc.ServiceDesc for Auth service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -146,12 +146,12 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AuthServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SignIn",
-			Handler:    _Auth_SignIn_Handler,
-		},
-		{
 			MethodName: "SignUp",
 			Handler:    _Auth_SignUp_Handler,
+		},
+		{
+			MethodName: "SignIn",
+			Handler:    _Auth_SignIn_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -254,108 +254,6 @@ var UserProfile_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ProfileInfo",
 			Handler:    _UserProfile_ProfileInfo_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "user_service_v1/user_service.proto",
-}
-
-const (
-	UserInfo_GetUser_FullMethodName = "/user_service.UserInfo/GetUser"
-)
-
-// UserInfoClient is the client API for UserInfo service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type UserInfoClient interface {
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
-}
-
-type userInfoClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewUserInfoClient(cc grpc.ClientConnInterface) UserInfoClient {
-	return &userInfoClient{cc}
-}
-
-func (c *userInfoClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetUserResponse)
-	err := c.cc.Invoke(ctx, UserInfo_GetUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// UserInfoServer is the server API for UserInfo service.
-// All implementations must embed UnimplementedUserInfoServer
-// for forward compatibility.
-type UserInfoServer interface {
-	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
-	mustEmbedUnimplementedUserInfoServer()
-}
-
-// UnimplementedUserInfoServer must be embedded to have
-// forward compatible implementations.
-//
-// NOTE: this should be embedded by value instead of pointer to avoid a nil
-// pointer dereference when methods are called.
-type UnimplementedUserInfoServer struct{}
-
-func (UnimplementedUserInfoServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
-}
-func (UnimplementedUserInfoServer) mustEmbedUnimplementedUserInfoServer() {}
-func (UnimplementedUserInfoServer) testEmbeddedByValue()                  {}
-
-// UnsafeUserInfoServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to UserInfoServer will
-// result in compilation errors.
-type UnsafeUserInfoServer interface {
-	mustEmbedUnimplementedUserInfoServer()
-}
-
-func RegisterUserInfoServer(s grpc.ServiceRegistrar, srv UserInfoServer) {
-	// If the following call pancis, it indicates UnimplementedUserInfoServer was
-	// embedded by pointer and is nil.  This will cause panics if an
-	// unimplemented method is ever invoked, so we test this at initialization
-	// time to prevent it from happening at runtime later due to I/O.
-	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
-		t.testEmbeddedByValue()
-	}
-	s.RegisterService(&UserInfo_ServiceDesc, srv)
-}
-
-func _UserInfo_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserInfoServer).GetUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserInfo_GetUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserInfoServer).GetUser(ctx, req.(*GetUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// UserInfo_ServiceDesc is the grpc.ServiceDesc for UserInfo service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var UserInfo_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "user_service.UserInfo",
-	HandlerType: (*UserInfoServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "GetUser",
-			Handler:    _UserInfo_GetUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
