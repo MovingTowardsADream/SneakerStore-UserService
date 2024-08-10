@@ -1,4 +1,4 @@
-package grpc_auth
+package usecase_auth
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"github.com/MovingTowardsADream/SneakerStore-UserService/internal/entity"
 )
 
-type Authorization interface {
+type UserRepository interface {
 	CreateUser(ctx context.Context, user *entity.User) (int64, error)
-	GenerateToken(ctx context.Context, signIn *dto.SignInRequest) (string, error)
+	GetUser(ctx context.Context, signIn *dto.SignInRequest) (*entity.User, error)
 }

@@ -3,6 +3,9 @@ package app
 import (
 	"github.com/MovingTowardsADream/SneakerStore-UserService/internal/config"
 	"github.com/MovingTowardsADream/SneakerStore-UserService/internal/grpc/grpcserver"
+	"github.com/MovingTowardsADream/SneakerStore-UserService/internal/repository/postgresdb"
+	usecase_auth "github.com/MovingTowardsADream/SneakerStore-UserService/internal/usecase/auth"
+	usecase_user "github.com/MovingTowardsADream/SneakerStore-UserService/internal/usecase/user"
 	"github.com/MovingTowardsADream/SneakerStore-UserService/pkg/postgres"
 	"log/slog"
 )
@@ -21,7 +24,12 @@ func NewApp(l *slog.Logger, cfg *config.Config) *App {
 
 	// TODO Migrations
 
-	gRPCServer := grpcserver.New(l, grpcserver.Port(cfg.Port))
+	userRepo := postgresdb.NewUserRepo(pg)
+
+	authUseCase := usecase_auth.NewUseCaseAuth(l, userRepo)
+	userUseCase := usecase_user.NewUseCaseUser(l, userRepo)
+
+	gRPCServer := grpcserver.New(l, userUseCase, authUseCase, grpcserver.Port(cfg.Port))
 
 	return &App{
 		Server: gRPCServer,

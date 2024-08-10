@@ -2,8 +2,8 @@ package grpcserver
 
 import (
 	"fmt"
-	"github.com/MovingTowardsADream/SneakerStore-UserService/internal/grpc/auth"
-	"github.com/MovingTowardsADream/SneakerStore-UserService/internal/grpc/user"
+	grpc_auth "github.com/MovingTowardsADream/SneakerStore-UserService/internal/grpc/auth"
+	grpc_user "github.com/MovingTowardsADream/SneakerStore-UserService/internal/grpc/user"
 	"google.golang.org/grpc"
 	"log/slog"
 	"net"
@@ -20,7 +20,7 @@ type Server struct {
 	port string
 }
 
-func New(log *slog.Logger, opts ...Option) *Server {
+func New(log *slog.Logger, userProfileInfo grpc_user.UserProfileInfo, auth grpc_auth.Authorization, opts ...Option) *Server {
 
 	s := &Server{
 		log:  log,
@@ -38,8 +38,8 @@ func New(log *slog.Logger, opts ...Option) *Server {
 		),
 	)
 
-	user.UserProfile(gRPCServer)
-	auth.Auth(gRPCServer)
+	grpc_user.UserProfile(gRPCServer, userProfileInfo)
+	grpc_auth.Auth(gRPCServer, auth)
 
 	s.gRPCServer = gRPCServer
 
